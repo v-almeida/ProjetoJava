@@ -5,17 +5,36 @@ public class Relatorio {
     private int totalCarrosSairam;
     private double valorPagamentos;
 
-    public void adicionarCarroEntrou() {
+    public Relatorio() {
+        this.totalCarrosEntraram = 0;
+        this.totalCarrosSairam = 0;
+        this.valorPagamentos = 0.0;
+    }
+
+    public void registrarEntrada() {
         totalCarrosEntraram++;
     }
 
-    public void adicionarCarroSaiu() {
+    public void registrarSaida() {
         totalCarrosSairam++;
+        valorPagamentos += calcularPagamento(); // Supondo que há uma lógica para calcular pagamento
     }
 
-    public void calcularValorPagamentos() {
-        valorPagamentos = totalCarrosSairam * 5.0; // Cada saída custa R$ 5,00
+    public int getTotalCarrosEntraram() {
+        return totalCarrosEntraram;
     }
 
-    // Getters
+    public int getTotalCarrosSairam() {
+        return totalCarrosSairam;
+    }
+
+    public double getValorPagamentos() {
+        return valorPagamentos;
+    }
+
+    private double calcularPagamento() {
+        // Implementar a lógica de cálculo de pagamento
+        // Exemplo:
+        return 10.0; // Valor fixo para exemplo
+    }
 }
