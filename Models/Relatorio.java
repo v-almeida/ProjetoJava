@@ -17,7 +17,7 @@ public class Relatorio {
 
     public void registrarSaida() {
         totalCarrosSairam++;
-        valorPagamentos += calcularPagamento(); // Supondo que há uma lógica para calcular pagamento
+        valorPagamentos += calcularPagamento(); 
     }
 
     public int getTotalCarrosEntraram() {
@@ -33,8 +33,8 @@ public class Relatorio {
     }
 
     private double calcularPagamento() {
-        // Implementar a lógica de cálculo de pagamento
-        // Exemplo:
-        return 10.0; // Valor fixo para exemplo
+        
+        
+        return 10.0; 
     }
 }
