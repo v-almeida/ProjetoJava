@@ -1,7 +1,8 @@
 package ProjetoJava.Views;
 
-import java.util.Scanner;
 import ProjetoJava.Controllers.EstacionamentoController;
+import ProjetoJava.Models.Configuracao;
+import java.util.Scanner;
 
 public class EstacionamentoView {
     private EstacionamentoController controller;
@@ -15,10 +16,12 @@ public class EstacionamentoView {
     public void exibirMenu() {
         boolean executando = true;
         while (executando) {
-            System.out.println("Bem-vindo ao sistema de estacionamento!");
-            System.out.println("1 - Registrar entrada de carro");
-            System.out.println("2 - Registrar saída de carro");
-            System.out.println("3 - Gerar relatório e sair");
+            System.out.println("Menu Principal:");
+            System.out.println("1 - Registrar Entrada de Carro");
+            System.out.println("2 - Registrar Saída de Carro");
+            System.out.println("3 - Gerar Relatório");
+            System.out.println("4 - Configurações");
+            System.out.println("5 - Sair");
             System.out.print("Escolha uma opção: ");
 
             int opcao = scanner.nextInt();
@@ -33,6 +36,11 @@ public class EstacionamentoView {
                     break;
                 case 3:
                     gerarRelatorio();
+                    break;
+                case 4:
+                    exibirMenuConfiguracao();
+                    break;
+                case 5:
                     executando = false;
                     break;
                 default:
@@ -45,34 +53,41 @@ public class EstacionamentoView {
     private void registrarEntrada() {
         System.out.print("Digite o modelo do carro: ");
         String modelo = scanner.nextLine();
-
         System.out.print("Digite a placa do carro: ");
         String placa = scanner.nextLine();
-
         System.out.print("Digite a cor do carro: ");
         String cor = scanner.nextLine();
 
-        if (controller.registrarEntrada(modelo, placa, cor)) {
-            System.out.println("Carro registrado com sucesso!\n");
+        boolean sucesso = controller.registrarEntrada(modelo, placa, cor);
+        if (sucesso) {
+            System.out.println("Entrada registrada com sucesso!");
         } else {
-            System.out.println("Não há vagas disponíveis no estacionamento.\n");
+            System.out.println("Falha ao registrar entrada. Estacionamento lotado.");
         }
     }
 
     private void registrarSaida() {
-        System.out.print("Digite a placa do carro que está saindo: ");
-        String placaSaida = scanner.nextLine();
+        System.out.print("Digite a placa do carro: ");
+        String placa = scanner.nextLine();
 
-        if (controller.registrarSaida(placaSaida)) {
-            System.out.println("Carro saiu do estacionamento.\n");
+        boolean sucesso = controller.registrarSaida(placa);
+        if (sucesso) {
+            System.out.println("Saída registrada com sucesso!");
         } else {
-            System.out.println("O carro com placa '" + placaSaida + "' não foi encontrado no estacionamento.\n");
+            System.out.println("Falha ao registrar saída. Carro não encontrado.");
         }
     }
 
     private void gerarRelatorio() {
         String relatorio = controller.gerarRelatorio();
+        System.out.println("Relatório:");
+        System.out.println(relatorio);
         controller.salvarRelatorio(relatorio);
-        System.out.println("Relatório gerado. Saindo do programa...");
+    }
+
+    private void exibirMenuConfiguracao() {
+        Configuracao configuracao = controller.getConfiguracao();
+        ConfiguracaoView configuracaoView = new ConfiguracaoView(configuracao);
+        configuracaoView.exibirMenu(); // Chamando sem passar Scanner
     }
 }

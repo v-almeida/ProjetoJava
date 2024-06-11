@@ -1,14 +1,24 @@
 package ProjetoJava.Controllers;
 
+
+
+
+
 import java.io.FileWriter;
 import java.io.IOException;
 import ProjetoJava.Models.Carro;
+import ProjetoJava.Models.Configuracao;
 import ProjetoJava.Models.Estacionamento;
 import ProjetoJava.Models.Relatorio;
+import ProjetoJava.Models.Usuario;
+import ProjetoJava.Persistence.ConfiguracaoPersistence;
 import ProjetoJava.Persistence.EntradaCarrosPersistence;
 import ProjetoJava.Persistence.SaidaCarrosPersistence;
 import ProjetoJava.Persistence.RelatoriosAntigosPersistence;
 import ProjetoJava.Persistence.LogPersistence;
+import ProjetoJava.Persistence.UsuarioPersistence;
+
+
 
 public class EstacionamentoController {
     private Estacionamento estacionamento;
@@ -17,14 +27,20 @@ public class EstacionamentoController {
     private SaidaCarrosPersistence saidaCarrosPersistence;
     private RelatoriosAntigosPersistence relatoriosAntigosPersistence;
     private LogPersistence logPersistence;
+    private UsuarioPersistence usuarioPersistence;
+    private ConfiguracaoPersistence configuracaoPersistence;
 
-    public EstacionamentoController() {
+
+    public EstacionamentoController(Configuracao configuracao) {
         this.estacionamento = new Estacionamento();
         this.relatorio = new Relatorio();
         this.entradaCarrosPersistence = new EntradaCarrosPersistence();
         this.saidaCarrosPersistence = new SaidaCarrosPersistence();
         this.relatoriosAntigosPersistence = new RelatoriosAntigosPersistence();
         this.logPersistence = new LogPersistence();
+        this.usuarioPersistence = new UsuarioPersistence();
+        this.configuracaoPersistence = new ConfiguracaoPersistence();
+        this.configuracaoPersistence.salvarConfiguracao(configuracao); // Salva a configuração no construtor
     }
 
     public boolean registrarEntrada(String modelo, String placa, String cor) {
@@ -40,6 +56,9 @@ public class EstacionamentoController {
             return false;
         }
     }
+
+    
+    
 
     public boolean registrarSaida(String placa) {
         if (estacionamento.carroEstacionado(placa)) {
@@ -76,5 +95,18 @@ public class EstacionamentoController {
             logPersistence.salvarConteudo("Erro ao salvar o relatório.");
             e.printStackTrace();
         }
+    }
+
+    public boolean cadastrarUsuario(String nome, String email, String senha) {
+        Usuario novoUsuario = new Usuario(nome, email, senha);
+        return usuarioPersistence.salvarUsuario(novoUsuario);
+    }
+
+     public boolean setConfiguracao(Configuracao configuracao) {
+        return configuracaoPersistence.salvarConfiguracao(configuracao);
+    }
+
+    public Configuracao getConfiguracao() {
+        return configuracaoPersistence.carregarConfiguracao();
     }
 }
