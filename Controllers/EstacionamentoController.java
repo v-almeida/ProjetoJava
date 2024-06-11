@@ -13,10 +13,18 @@ import ProjetoJava.Persistence.LogPersistence;
 public class EstacionamentoController {
     private Estacionamento estacionamento;
     private Relatorio relatorio;
+    private EntradaCarrosPersistence entradaCarrosPersistence;
+    private SaidaCarrosPersistence saidaCarrosPersistence;
+    private RelatoriosAntigosPersistence relatoriosAntigosPersistence;
+    private LogPersistence logPersistence;
 
     public EstacionamentoController() {
         this.estacionamento = new Estacionamento();
         this.relatorio = new Relatorio();
+        this.entradaCarrosPersistence = new EntradaCarrosPersistence();
+        this.saidaCarrosPersistence = new SaidaCarrosPersistence();
+        this.relatoriosAntigosPersistence = new RelatoriosAntigosPersistence();
+        this.logPersistence = new LogPersistence();
     }
 
     public boolean registrarEntrada(String modelo, String placa, String cor) {
@@ -24,11 +32,11 @@ public class EstacionamentoController {
             Carro carro = new Carro(modelo, placa, cor);
             estacionamento.adicionarCarro(carro);
             relatorio.registrarEntrada();
-            EntradaCarrosPersistence.salvarEntradaCarro(modelo, placa, cor);
-            LogPersistence.salvarLog("Entrada registrada para o carro com placa: " + placa);
+            entradaCarrosPersistence.salvarEntradaCarro(modelo, placa, cor);
+            logPersistence.salvarConteudo("Entrada registrada para o carro com placa: " + placa);
             return true;
         } else {
-            LogPersistence.salvarLog("Tentativa de entrada falhou, estacionamento lotado.");
+            logPersistence.salvarConteudo("Tentativa de entrada falhou, estacionamento lotado.");
             return false;
         }
     }
@@ -37,11 +45,11 @@ public class EstacionamentoController {
         if (estacionamento.carroEstacionado(placa)) {
             estacionamento.removerCarro(placa);
             relatorio.registrarSaida();
-            SaidaCarrosPersistence.salvarSaidaCarro(placa);
-            LogPersistence.salvarLog("Saída registrada para o carro com placa: " + placa);
+            saidaCarrosPersistence.salvarSaidaCarro(placa);
+            logPersistence.salvarConteudo("Saída registrada para o carro com placa: " + placa);
             return true;
         } else {
-            LogPersistence.salvarLog("Tentativa de saída falhou, carro com placa: " + placa + " não encontrado.");
+            logPersistence.salvarConteudo("Tentativa de saída falhou, carro com placa: " + placa + " não encontrado.");
             return false;
         }
     }
@@ -58,14 +66,14 @@ public class EstacionamentoController {
     }
 
     public void salvarRelatorio(String conteudoRelatorio) {
-        RelatoriosAntigosPersistence.salvarRelatorioAntigo(conteudoRelatorio);
+        relatoriosAntigosPersistence.salvarConteudo(conteudoRelatorio);
         try (FileWriter writer = new FileWriter("relatorio.txt")) {
             writer.write(conteudoRelatorio);
             System.out.println("Relatório salvo com sucesso em 'relatorio.txt'.");
-            LogPersistence.salvarLog("Relatório gerado e salvo.");
+            logPersistence.salvarConteudo("Relatório gerado e salvo.");
         } catch (IOException e) {
             System.err.println("Ocorreu um erro ao salvar o relatório.");
-            LogPersistence.salvarLog("Erro ao salvar o relatório.");
+            logPersistence.salvarConteudo("Erro ao salvar o relatório.");
             e.printStackTrace();
         }
     }

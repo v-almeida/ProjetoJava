@@ -1,25 +1,25 @@
 package ProjetoJava.Persistence;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class EntradaCarrosPersistence {
-    private static final String FILE_NAME = "entrada_carros.txt";
+public class EntradaCarrosPersistence extends Persistencia {
+    public EntradaCarrosPersistence() {
+        super("entrada_carros.txt");
+    }
 
-    public static void salvarEntradaCarro(String modelo, String placa, String cor) {
+    @Override
+    public void salvarConteudo(String conteudo) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         String formattedDateTime = now.format(formatter);
 
-        String conteudo = String.format("%s - Modelo: %s, Placa: %s, Cor: %s%n", formattedDateTime, modelo, placa, cor);
+        String registro = String.format("%s - %s%n", formattedDateTime, conteudo);
+        salvar(registro);
+    }
 
-        try (FileWriter writer = new FileWriter(FILE_NAME, true)) {
-            writer.write(conteudo);
-        } catch (IOException e) {
-            System.err.println("Erro ao salvar dados de entrada de carro.");
-            e.printStackTrace();
-        }
+    public void salvarEntradaCarro(String modelo, String placa, String cor) {
+        String conteudo = String.format("Modelo: %s, Placa: %s, Cor: %s", modelo, placa, cor);
+        salvarConteudo(conteudo);
     }
 }
