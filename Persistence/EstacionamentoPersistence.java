@@ -21,6 +21,7 @@ public class EstacionamentoPersistence extends Persistencia<Estacionamento> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<Estacionamento> carregar() {
         List<Estacionamento> estacionamentos = new ArrayList<>();
