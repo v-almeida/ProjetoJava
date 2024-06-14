@@ -8,33 +8,36 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsuarioPersistence {
+public class UsuarioPersistence extends Persistencia<Usuario> {
     private static final String FILE_PATH = "usuarios.txt";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    // Salva uma lista de usuários no arquivo, substituindo o conteúdo existente.
-    public void salvar(List<Usuario> usuarios) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
-            for (Usuario usuario : usuarios) {
-                writer.write(formatarUsuario(usuario));
-                writer.newLine();
+    public UsuarioPersistence() {
+        super(FILE_PATH);
+        criarArquivoSeNaoExistir();
+    }
+
+    @Override
+    public void salvar(List<Usuario> objetos) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(FILE_PATH))) {
+            for (Usuario usuario : objetos) {
+                writer.println(formatarUsuario(usuario));
             }
         } catch (IOException e) {
-            System.err.println("Erro ao salvar os usuários: " + e.getMessage());
+            System.err.println("Erro ao salvar o usuário: " + e.getMessage());
         }
     }
 
-    // Carrega os usuários do arquivo e retorna uma lista de objetos Usuario.
+    @Override
     public List<Usuario> carregar() {
         List<Usuario> usuarios = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
             String linha;
             while ((linha = reader.readLine()) != null) {
-                if (!linha.trim().isEmpty()) {
-                    Usuario usuario = parseLinhaParaUsuario(linha);
-                    if (usuario != null) {
-                        usuarios.add(usuario);
-                    }
+                try {
+                    usuarios.add(parseLinhaParaUsuario(linha));
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Erro ao analisar a linha: " + linha + ". Detalhes: " + e.getMessage());
                 }
             }
         } catch (IOException e) {
@@ -43,42 +46,51 @@ public class UsuarioPersistence {
         return usuarios;
     }
 
-    // Salva um único usuário no arquivo, mantendo os existentes.
+    
     public boolean salvarUsuario(Usuario usuario) {
-        List<Usuario> usuarios = carregar(); // Carregar usuários existentes
+        List<Usuario> usuarios = carregar();
         usuarios.add(usuario);
-        salvar(usuarios); // Salvar a lista completa de volta
+        salvar(usuarios);
         return true;
     }
 
-    // Remove um usuário pelo email e salva a lista atualizada no arquivo.
+
     public boolean removerUsuario(String email) {
         List<Usuario> usuarios = carregar();
-        boolean usuarioRemovido = usuarios.removeIf(usuario -> usuario.getEmail().equals(email));
-        if (usuarioRemovido) {
-            salvar(usuarios); // Salva a lista atualizada de volta
-        }
-        return usuarioRemovido;
+        boolean encontrado = usuarios.removeIf(usuario -> usuario.getEmail().equals(email));
+        salvar(usuarios);
+        return encontrado;
     }
 
-    // Formata um objeto Usuario em uma linha de texto para salvar no arquivo.
+
     private String formatarUsuario(Usuario usuario) {
-        return String.format("nome:%s;email:%s;senha:%s;data_hora:%s",
-                usuario.getNome(),
-                usuario.getEmail(),
-                usuario.getSenha(),
-                LocalDateTime.now().format(DATE_FORMATTER));
+        return "nome:" + usuario.getNome() +
+                " email:" + usuario.getEmail() +
+                " senha:" + usuario.getSenha() +
+                " data_hora:" + LocalDateTime.now().format(DATE_FORMATTER);
     }
 
-    // Converte uma linha de texto em um objeto Usuario.
+
     private Usuario parseLinhaParaUsuario(String linha) {
-        String[] partes = linha.split(";");
-        if (partes.length >= 4) { // Assegura que temos todas as partes necessárias
+        String[] partes = linha.split(" ");
+        if (partes.length >= 4) { // Garantir que haja pelo menos 4 partes (nome, email, senha e data_hora)
             String nome = partes[0].split(":")[1];
             String email = partes[1].split(":")[1];
             String senha = partes[2].split(":")[1];
+            // Podem haver campos adicionais, então vamos ignorar os últimos campos
             return new Usuario(nome, email, senha);
         }
-        return null; // Retorna null se a linha não estiver no formato esperado
+        return null;
+    }
+
+    private void criarArquivoSeNaoExistir() {
+        File file = new File(FILE_PATH);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                System.err.println("Erro ao criar o arquivo de usuários: " + e.getMessage());
+            }
+        }
     }
 }
