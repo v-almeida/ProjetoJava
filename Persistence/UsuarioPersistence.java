@@ -12,8 +12,9 @@ public class UsuarioPersistence {
     private static final String FILE_PATH = "usuarios.txt";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    // Salva uma lista de usuários no arquivo, substituindo o conteúdo existente.
     public void salvar(List<Usuario> usuarios) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, false))) {
             for (Usuario usuario : usuarios) {
                 writer.write(formatarUsuario(usuario));
                 writer.newLine();
@@ -23,6 +24,7 @@ public class UsuarioPersistence {
         }
     }
 
+    // Carrega os usuários do arquivo e retorna uma lista de objetos Usuario.
     public List<Usuario> carregar() {
         List<Usuario> usuarios = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
@@ -41,34 +43,42 @@ public class UsuarioPersistence {
         return usuarios;
     }
 
+    // Salva um único usuário no arquivo, mantendo os existentes.
     public boolean salvarUsuario(Usuario usuario) {
-        List<Usuario> usuarios = new ArrayList<>();
+        List<Usuario> usuarios = carregar(); // Carregar usuários existentes
         usuarios.add(usuario);
-        salvar(usuarios);
-        return true; // ou outra condição para indicar se o salvamento foi bem-sucedido
+        salvar(usuarios); // Salvar a lista completa de volta
+        return true;
     }
 
+    // Remove um usuário pelo email e salva a lista atualizada no arquivo.
+    public boolean removerUsuario(String email) {
+        List<Usuario> usuarios = carregar();
+        boolean usuarioRemovido = usuarios.removeIf(usuario -> usuario.getEmail().equals(email));
+        if (usuarioRemovido) {
+            salvar(usuarios); // Salva a lista atualizada de volta
+        }
+        return usuarioRemovido;
+    }
+
+    // Formata um objeto Usuario em uma linha de texto para salvar no arquivo.
     private String formatarUsuario(Usuario usuario) {
-        return "nome: " + usuario.getNome() +
-                " email: " + usuario.getEmail() +
-                " senha: " + usuario.getSenha() +
-                " data_hora: " + LocalDateTime.now().format(DATE_FORMATTER);
+        return String.format("nome:%s;email:%s;senha:%s;data_hora:%s",
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getSenha(),
+                LocalDateTime.now().format(DATE_FORMATTER));
     }
 
+    // Converte uma linha de texto em um objeto Usuario.
     private Usuario parseLinhaParaUsuario(String linha) {
-        String[] partes = linha.split(" ");
-        if (partes.length >= 6) { // Garantir que haja pelo menos 6 partes ( fatores (`nome`, `email`, `senha` e `data_hora`)
-            String nome = partes[1];
-            String email = partes[3];
-            String senha = partes[5];
-            // Podem haver campos adicionais, então vamos ignorar os últimos campos
+        String[] partes = linha.split(";");
+        if (partes.length >= 4) { // Assegura que temos todas as partes necessárias
+            String nome = partes[0].split(":")[1];
+            String email = partes[1].split(":")[1];
+            String senha = partes[2].split(":")[1];
             return new Usuario(nome, email, senha);
         }
-        return null;
-    }
-
-    public boolean removerUsuario(String email) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'removerUsuario'");
+        return null; // Retorna null se a linha não estiver no formato esperado
     }
 }

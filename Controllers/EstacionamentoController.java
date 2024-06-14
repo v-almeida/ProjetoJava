@@ -12,6 +12,7 @@ import ProjetoJava.Persistence.RelatoriosAntigosPersistence;
 import ProjetoJava.Persistence.LogPersistence;
 import ProjetoJava.Persistence.UsuarioPersistence;
 import ProjetoJava.Persistence.EntradaUsuariosPersistence;
+import ProjetoJava.Persistence.SaidaUsuariosPersistence;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class EstacionamentoController {
     private UsuarioPersistence usuarioPersistence;
     private ConfiguracaoPersistence configuracaoPersistence;
     private EntradaUsuariosPersistence entradaUsuariosPersistence;
+    private SaidaUsuariosPersistence saidaUsuariosPersistence;
 
     public EstacionamentoController(Configuracao configuracao) {
         this.estacionamento = new Estacionamento();
@@ -37,6 +39,7 @@ public class EstacionamentoController {
         this.usuarioPersistence = new UsuarioPersistence();
         this.configuracaoPersistence = new ConfiguracaoPersistence();
         this.entradaUsuariosPersistence = new EntradaUsuariosPersistence();
+        this.saidaUsuariosPersistence = new SaidaUsuariosPersistence();
         this.configuracaoPersistence.salvarConfiguracao(configuracao); // Salva a configuração no construtor
     }
 
@@ -69,12 +72,13 @@ public class EstacionamentoController {
 
     public String gerarRelatorio() {
         return String.format(
-                "Total de carros que entraram: %d%n" +
-                        "Total de carros que saíram: %d%n" +
-                        "Valor de pagamentos: R$ %.2f%n",
-                relatorio.getTotalCarrosEntraram(),
-                relatorio.getTotalCarrosSairam(),
-                relatorio.getValorPagamentos());
+            "Total de carros que entraram: %d%n" +
+            "Total de carros que saíram: %d%n" +
+            "Valor de pagamentos: R$ %.2f%n",
+            relatorio.getTotalCarrosEntraram(),
+            relatorio.getTotalCarrosSairam(),
+            relatorio.getValorPagamentos()
+        );
     }
 
     public void salvarRelatorio(String conteudoRelatorio) {
@@ -100,7 +104,11 @@ public class EstacionamentoController {
     }
 
     public boolean removerUsuario(String email) {
-        return usuarioPersistence.removerUsuario(email);
+        boolean sucesso = usuarioPersistence.removerUsuario(email);
+        if (sucesso) {
+            saidaUsuariosPersistence.salvarSaidaUsuario(email);
+        }
+        return sucesso;
     }
 
     public boolean setConfiguracao(Configuracao configuracao) {
