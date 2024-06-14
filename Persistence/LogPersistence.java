@@ -48,6 +48,36 @@ public class LogPersistence extends Persistencia<String> {
         }
     }
 
+    public void logEntradaCarro(String modelo, String placa, String cor) {
+        String conteudo = String.format("Entrada de carro - Modelo: %s, Placa: %s, Cor: %s", modelo, placa, cor);
+        salvarConteudo(conteudo);
+    }
+
+    public void logSaidaCarro(String placa) {
+        String conteudo = String.format("Saída de carro - Placa: %s", placa);
+        salvarConteudo(conteudo);
+    }
+
+    public void logConfiguracao(String alteracao, String usuario) {
+        String conteudo = String.format("Configuração alterada - Usuário: %s, Alteração: %s", usuario, alteracao);
+        salvarConteudo(conteudo);
+    }
+
+    public void logEntradaUsuario(String nome, String email) {
+        String conteudo = String.format("Entrada de usuário - Nome: %s, Email: %s", nome, email);
+        salvarConteudo(conteudo);
+    }
+
+    public void logSaidaUsuario(String email) {
+        String conteudo = String.format("Saída de usuário - Email: %s", email);
+        salvarConteudo(conteudo);
+    }
+
+    public void logRelatorio(String relatorio) {
+        String conteudo = "Relatório gerado - " + relatorio;
+        salvarConteudo(conteudo);
+    }
+
     private void criarArquivoSeNaoExistir() {
         File file = new File(FILE_PATH);
         if (!file.exists()) {

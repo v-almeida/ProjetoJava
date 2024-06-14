@@ -49,7 +49,7 @@ public class EstacionamentoController {
             estacionamento.adicionarCarro(carro);
             relatorio.registrarEntrada();
             entradaCarrosPersistence.salvarEntradaCarro(modelo, placa, cor);
-            logPersistence.salvarConteudo("Entrada registrada para o carro com placa: " + placa);
+            logPersistence.logEntradaCarro(modelo, placa, cor);
             return true;
         } else {
             logPersistence.salvarConteudo("Tentativa de entrada falhou, estacionamento lotado.");
@@ -62,7 +62,7 @@ public class EstacionamentoController {
             estacionamento.removerCarro(placa);
             relatorio.registrarSaida();
             saidaCarrosPersistence.salvarSaidaCarro(placa);
-            logPersistence.salvarConteudo("Saída registrada para o carro com placa: " + placa);
+            logPersistence.logSaidaCarro(placa);
             return true;
         } else {
             logPersistence.salvarConteudo("Tentativa de saída falhou, carro com placa: " + placa + " não encontrado.");
@@ -71,7 +71,7 @@ public class EstacionamentoController {
     }
 
     public String gerarRelatorio() {
-        return String.format(
+        String relatorioGerado = String.format(
             "Total de carros que entraram: %d%n" +
             "Total de carros que saíram: %d%n" +
             "Valor de pagamentos: R$ %.2f%n",
@@ -79,6 +79,8 @@ public class EstacionamentoController {
             relatorio.getTotalCarrosSairam(),
             relatorio.getValorPagamentos()
         );
+        logPersistence.logRelatorio(relatorioGerado);
+        return relatorioGerado;
     }
 
     public void salvarRelatorio(String conteudoRelatorio) {
@@ -99,6 +101,7 @@ public class EstacionamentoController {
         boolean sucesso = usuarioPersistence.salvarUsuario(novoUsuario);
         if (sucesso) {
             entradaUsuariosPersistence.salvarEntradaUsuario(nome, email);
+            logPersistence.logEntradaUsuario(nome, email);
         }
         return sucesso;
     }
@@ -107,12 +110,17 @@ public class EstacionamentoController {
         boolean sucesso = usuarioPersistence.removerUsuario(email);
         if (sucesso) {
             saidaUsuariosPersistence.salvarSaidaUsuario(email);
+            logPersistence.logSaidaUsuario(email);
         }
         return sucesso;
     }
 
     public boolean setConfiguracao(Configuracao configuracao) {
-        return configuracaoPersistence.salvarConfiguracao(configuracao);
+        boolean sucesso = configuracaoPersistence.salvarConfiguracao(configuracao);
+        if (sucesso) {
+            logPersistence.logConfiguracao(configuracao.toString(), "admin"); // Supondo que o usuário atual é "admin"
+        }
+        return sucesso;
     }
 
     public Configuracao getConfiguracao() {
