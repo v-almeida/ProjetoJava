@@ -66,4 +66,9 @@ public class UsuarioPersistence {
         }
         return null;
     }
+
+    public boolean removerUsuario(String email) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'removerUsuario'");
+    }
 }

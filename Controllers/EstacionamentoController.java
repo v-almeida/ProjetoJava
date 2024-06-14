@@ -1,11 +1,5 @@
 package ProjetoJava.Controllers;
 
-
-
-
-
-import java.io.FileWriter;
-import java.io.IOException;
 import ProjetoJava.Models.Carro;
 import ProjetoJava.Models.Configuracao;
 import ProjetoJava.Models.Estacionamento;
@@ -17,8 +11,10 @@ import ProjetoJava.Persistence.SaidaCarrosPersistence;
 import ProjetoJava.Persistence.RelatoriosAntigosPersistence;
 import ProjetoJava.Persistence.LogPersistence;
 import ProjetoJava.Persistence.UsuarioPersistence;
+import ProjetoJava.Persistence.EntradaUsuariosPersistence;
 
-
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class EstacionamentoController {
     private Estacionamento estacionamento;
@@ -29,7 +25,7 @@ public class EstacionamentoController {
     private LogPersistence logPersistence;
     private UsuarioPersistence usuarioPersistence;
     private ConfiguracaoPersistence configuracaoPersistence;
-
+    private EntradaUsuariosPersistence entradaUsuariosPersistence;
 
     public EstacionamentoController(Configuracao configuracao) {
         this.estacionamento = new Estacionamento();
@@ -40,6 +36,7 @@ public class EstacionamentoController {
         this.logPersistence = new LogPersistence();
         this.usuarioPersistence = new UsuarioPersistence();
         this.configuracaoPersistence = new ConfiguracaoPersistence();
+        this.entradaUsuariosPersistence = new EntradaUsuariosPersistence();
         this.configuracaoPersistence.salvarConfiguracao(configuracao); // Salva a configuração no construtor
     }
 
@@ -57,9 +54,6 @@ public class EstacionamentoController {
         }
     }
 
-    
-    
-
     public boolean registrarSaida(String placa) {
         if (estacionamento.carroEstacionado(placa)) {
             estacionamento.removerCarro(placa);
@@ -75,13 +69,12 @@ public class EstacionamentoController {
 
     public String gerarRelatorio() {
         return String.format(
-            "Total de carros que entraram: %d%n" +
-            "Total de carros que saíram: %d%n" +
-            "Valor de pagamentos: R$ %.2f%n",
-            relatorio.getTotalCarrosEntraram(),
-            relatorio.getTotalCarrosSairam(),
-            relatorio.getValorPagamentos()
-        );
+                "Total de carros que entraram: %d%n" +
+                        "Total de carros que saíram: %d%n" +
+                        "Valor de pagamentos: R$ %.2f%n",
+                relatorio.getTotalCarrosEntraram(),
+                relatorio.getTotalCarrosSairam(),
+                relatorio.getValorPagamentos());
     }
 
     public void salvarRelatorio(String conteudoRelatorio) {
@@ -99,10 +92,18 @@ public class EstacionamentoController {
 
     public boolean cadastrarUsuario(String nome, String email, String senha) {
         Usuario novoUsuario = new Usuario(nome, email, senha);
-        return usuarioPersistence.salvarUsuario(novoUsuario);
+        boolean sucesso = usuarioPersistence.salvarUsuario(novoUsuario);
+        if (sucesso) {
+            entradaUsuariosPersistence.salvarEntradaUsuario(nome, email);
+        }
+        return sucesso;
     }
 
-     public boolean setConfiguracao(Configuracao configuracao) {
+    public boolean removerUsuario(String email) {
+        return usuarioPersistence.removerUsuario(email);
+    }
+
+    public boolean setConfiguracao(Configuracao configuracao) {
         return configuracaoPersistence.salvarConfiguracao(configuracao);
     }
 

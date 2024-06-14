@@ -21,7 +21,9 @@ public class EstacionamentoView {
             System.out.println("2 - Registrar Saída de Carro");
             System.out.println("3 - Gerar Relatório");
             System.out.println("4 - Configurações");
-            System.out.println("5 - Sair");
+            System.out.println("5 - Registrar Usuário");
+            System.out.println("6 - Remover Usuário");
+            System.out.println("7 - Sair");
             System.out.print("Escolha uma opção: ");
 
             int opcao = scanner.nextInt();
@@ -41,6 +43,12 @@ public class EstacionamentoView {
                     exibirMenuConfiguracao();
                     break;
                 case 5:
+                    registrarEntradaUsuario();
+                    break;
+                case 6:
+                    registrarSaidaUsuario();
+                    break;
+                case 7:
                     executando = false;
                     break;
                 default:
@@ -89,5 +97,33 @@ public class EstacionamentoView {
         Configuracao configuracao = controller.getConfiguracao();
         ConfiguracaoView configuracaoView = new ConfiguracaoView(configuracao);
         configuracaoView.exibirMenu(); // Chamando sem passar Scanner
+    }
+
+    private void registrarEntradaUsuario() {
+        System.out.print("Nome do usuário: ");
+        String nome = scanner.nextLine();
+        System.out.print("Email do usuário: ");
+        String email = scanner.nextLine();
+        System.out.print("Senha do usuário: ");
+        String senha = scanner.nextLine();
+
+        boolean sucesso = controller.cadastrarUsuario(nome, email, senha);
+        if (sucesso) {
+            System.out.println("Usuário registrado com sucesso!");
+        } else {
+            System.out.println("Falha ao registrar usuário.");
+        }
+    }
+
+    private void registrarSaidaUsuario() {
+        System.out.print("Digite o email do usuário: ");
+        String email = scanner.nextLine();
+
+        boolean sucesso = controller.removerUsuario(email);
+        if (sucesso) {
+            System.out.println("Saída do usuário registrada com sucesso!");
+        } else {
+            System.out.println("Falha ao registrar saída. Usuário não encontrado.");
+        }
     }
 }
